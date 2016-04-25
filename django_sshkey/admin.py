@@ -28,9 +28,10 @@
 
 from django.contrib import admin
 from django_sshkey.models import UserKey
+from salmonella.admin import SalmonellaMixin
 
 
-class UserKeyAdmin(admin.ModelAdmin):
+class UserKeyAdmin(SalmonellaMixin, admin.ModelAdmin):
     list_display = [
         '__unicode__',
         'user',
@@ -49,5 +50,6 @@ class UserKeyAdmin(admin.ModelAdmin):
         'last_modified',
         'last_used',
     ]
+    salmonella_fields = ('user',)
 
 admin.site.register(UserKey, UserKeyAdmin)

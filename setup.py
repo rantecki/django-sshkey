@@ -75,5 +75,6 @@ setup(
     },
     install_requires = [
         'pyasn1',
+        'django-salmonella'
     ],
 )
