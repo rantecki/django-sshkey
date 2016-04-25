@@ -28,7 +28,7 @@
 
 from django.test import TestCase
 from django.test.client import Client
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django_sshkey.models import UserKey
@@ -37,6 +37,8 @@ import os
 import shutil
 import subprocess
 import tempfile
+
+User = get_user_model()
 
 
 def ssh_keygen(type=None, passphrase='', comment=None, file=None):
