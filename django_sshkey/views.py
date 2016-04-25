@@ -32,7 +32,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.utils.http import is_safe_url
@@ -71,7 +71,7 @@ def lookup(request):
     return HttpResponse(response, content_type='text/plain')
 
 
-@login_required
+@permission_required('django_sshkey.add_userkey')
 @require_GET
 def userkey_list(request):
     userkey_list = UserKey.objects.filter(user=request.user)
@@ -85,7 +85,7 @@ def userkey_list(request):
     )
 
 
-@login_required
+@permission_required('django_sshkey.add_userkey')
 @require_http_methods(['GET', 'POST'])
 def userkey_add(request):
     if request.method == 'POST':
@@ -110,7 +110,7 @@ def userkey_add(request):
     )
 
 
-@login_required
+@permission_required('django_sshkey.change_userkey')
 @require_http_methods(['GET', 'POST'])
 def userkey_edit(request, pk):
     if not settings.SSHKEY_ALLOW_EDIT:
@@ -138,7 +138,7 @@ def userkey_edit(request, pk):
     )
 
 
-@login_required
+@permission_required('django_sshkey.delete_userkey')
 @require_GET
 def userkey_delete(request, pk):
     userkey = get_object_or_404(UserKey, pk=pk)
