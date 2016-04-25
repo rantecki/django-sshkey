@@ -40,103 +40,111 @@ from django_sshkey import settings
 from django_sshkey.models import UserKey
 from django_sshkey.forms import UserKeyForm
 
+
 @require_http_methods(['GET', 'POST'])
 @csrf_exempt
 def lookup(request):
-  if request.method == 'POST':
-    payload = request.read()
-    key = UserKey.objects.get(id=int(payload))
-    key.touch()
-    return HttpResponse(str(key.last_used), content_type='text/plain')
-  try:
-    fingerprint = request.GET['fingerprint']
-    keys = UserKey.objects.filter(fingerprint=fingerprint)
-  except KeyError:
+    if request.method == 'POST':
+        payload = request.read()
+        key = UserKey.objects.get(id=int(payload))
+        key.touch()
+        return HttpResponse(str(key.last_used), content_type='text/plain')
     try:
-      username = request.GET['username']
-      keys = UserKey.objects.filter(user__username=username)
+        fingerprint = request.GET['fingerprint']
+        keys = UserKey.objects.filter(fingerprint=fingerprint)
     except KeyError:
-      keys = UserKey.objects.iterator()
-  response = ''
-  for key in keys:
-    if settings.SSHKEY_AUTHORIZED_KEYS_OPTIONS:
-      options = settings.SSHKEY_AUTHORIZED_KEYS_OPTIONS.format(
-        username=key.user.username,
-        key_id=key.id,
-      ) + ' '
-    else:
-      options = ''
-    response += options + key.key + '\n'
-  return HttpResponse(response, content_type='text/plain')
+        try:
+            username = request.GET['username']
+            keys = UserKey.objects.filter(user__username=username)
+        except KeyError:
+            keys = UserKey.objects.iterator()
+    response = ''
+    for key in keys:
+        if settings.SSHKEY_AUTHORIZED_KEYS_OPTIONS:
+            options = settings.SSHKEY_AUTHORIZED_KEYS_OPTIONS.format(
+                username=key.user.username,
+                key_id=key.id,
+            ) + ' '
+        else:
+            options = ''
+        response += options + key.key + '\n'
+    return HttpResponse(response, content_type='text/plain')
+
 
 @login_required
 @require_GET
 def userkey_list(request):
-  userkey_list = UserKey.objects.filter(user=request.user)
-  return render_to_response(
-    'sshkey/userkey_list.html',
-    { 'userkey_list': userkey_list, 'allow_edit': settings.SSHKEY_ALLOW_EDIT },
-    context_instance = RequestContext(request),
-  )
+    userkey_list = UserKey.objects.filter(user=request.user)
+    return render_to_response(
+        'sshkey/userkey_list.html',
+        {
+            'userkey_list': userkey_list,
+            'allow_edit': settings.SSHKEY_ALLOW_EDIT
+        },
+        context_instance=RequestContext(request),
+    )
+
 
 @login_required
 @require_http_methods(['GET', 'POST'])
 def userkey_add(request):
-  if request.method == 'POST':
-    userkey = UserKey(user=request.user)
-    userkey.request = request
-    form = UserKeyForm(request.POST, instance=userkey)
-    if form.is_valid():
-      form.save()
-      default_redirect = reverse('django_sshkey.views.userkey_list')
-      url = request.GET.get('next', default_redirect)
-      if not is_safe_url(url=url, host=request.get_host()):
-        url = default_redirect
-      message = 'SSH public key %s was added.' % userkey.name
-      messages.success(request, message, fail_silently=True)
-      return HttpResponseRedirect(url)
-  else:
-    form = UserKeyForm()
-  return render_to_response(
-    'sshkey/userkey_detail.html',
-    { 'form': form, 'action': 'add' },
-    context_instance = RequestContext(request),
-  )
+    if request.method == 'POST':
+        userkey = UserKey(user=request.user)
+        userkey.request = request
+        form = UserKeyForm(request.POST, instance=userkey)
+        if form.is_valid():
+            form.save()
+            default_redirect = reverse('django_sshkey.views.userkey_list')
+            url = request.GET.get('next', default_redirect)
+            if not is_safe_url(url=url, host=request.get_host()):
+                url = default_redirect
+            message = 'SSH public key %s was added.' % userkey.name
+            messages.success(request, message, fail_silently=True)
+            return HttpResponseRedirect(url)
+    else:
+        form = UserKeyForm()
+    return render_to_response(
+        'sshkey/userkey_detail.html',
+        {'form': form, 'action': 'add'},
+        context_instance=RequestContext(request),
+    )
+
 
 @login_required
 @require_http_methods(['GET', 'POST'])
 def userkey_edit(request, pk):
-  if not settings.SSHKEY_ALLOW_EDIT:
-    raise PermissionDenied
-  userkey = get_object_or_404(UserKey, pk=pk)
-  if userkey.user != request.user:
-    raise PermissionDenied
-  if request.method == 'POST':
-    form = UserKeyForm(request.POST, instance=userkey)
-    if form.is_valid():
-      form.save()
-      default_redirect = reverse('django_sshkey.views.userkey_list')
-      url = request.GET.get('next', default_redirect)
-      if not is_safe_url(url=url, host=request.get_host()):
-        url = default_redirect
-      message = 'SSH public key %s was saved.' % userkey.name
-      messages.success(request, message, fail_silently=True)
-      return HttpResponseRedirect(url)
-  else:
-    form = UserKeyForm(instance=userkey)
-  return render_to_response(
-    'sshkey/userkey_detail.html',
-    { 'form': form, 'action': 'edit' },
-    context_instance = RequestContext(request),
-  )
+    if not settings.SSHKEY_ALLOW_EDIT:
+        raise PermissionDenied
+    userkey = get_object_or_404(UserKey, pk=pk)
+    if userkey.user != request.user:
+        raise PermissionDenied
+    if request.method == 'POST':
+        form = UserKeyForm(request.POST, instance=userkey)
+        if form.is_valid():
+            form.save()
+            default_redirect = reverse('django_sshkey.views.userkey_list')
+            url = request.GET.get('next', default_redirect)
+            if not is_safe_url(url=url, host=request.get_host()):
+                url = default_redirect
+            message = 'SSH public key %s was saved.' % userkey.name
+            messages.success(request, message, fail_silently=True)
+            return HttpResponseRedirect(url)
+    else:
+        form = UserKeyForm(instance=userkey)
+    return render_to_response(
+        'sshkey/userkey_detail.html',
+        {'form': form, 'action': 'edit'},
+        context_instance=RequestContext(request),
+    )
+
 
 @login_required
 @require_GET
 def userkey_delete(request, pk):
-  userkey = get_object_or_404(UserKey, pk=pk)
-  if userkey.user != request.user:
-    raise PermissionDenied
-  userkey.delete()
-  message = 'SSH public key %s was deleted.' % userkey.name
-  messages.success(request, message, fail_silently=True)
-  return HttpResponseRedirect(reverse('django_sshkey.views.userkey_list'))
+    userkey = get_object_or_404(UserKey, pk=pk)
+    if userkey.user != request.user:
+        raise PermissionDenied
+    userkey.delete()
+    message = 'SSH public key %s was deleted.' % userkey.name
+    messages.success(request, message, fail_silently=True)
+    return HttpResponseRedirect(reverse('django_sshkey.views.userkey_list'))

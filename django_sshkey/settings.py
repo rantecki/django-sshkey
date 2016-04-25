@@ -28,11 +28,17 @@
 
 from django.conf import settings
 
-SSHKEY_AUTHORIZED_KEYS_OPTIONS = getattr(settings, 'SSHKEY_AUTHORIZED_KEYS_OPTIONS', None)
-SSHKEY_ALLOW_EDIT = getattr(settings, 'SSHKEY_ALLOW_EDIT', False)
-SSHKEY_EMAIL_ADD_KEY = getattr(settings, 'SSHKEY_EMAIL_ADD_KEY', True)
-SSHKEY_EMAIL_ADD_KEY_SUBJECT = getattr(settings, 'SSHKEY_EMAIL_ADD_KEY_SUBJECT',
-  "A new public key was added to your account"
+SSHKEY_AUTHORIZED_KEYS_OPTIONS = getattr(
+    settings, 'SSHKEY_AUTHORIZED_KEYS_OPTIONS', None)
+SSHKEY_ALLOW_EDIT = getattr(
+    settings, 'SSHKEY_ALLOW_EDIT', False)
+SSHKEY_EMAIL_ADD_KEY = getattr(
+    settings, 'SSHKEY_EMAIL_ADD_KEY', True)
+SSHKEY_EMAIL_ADD_KEY_SUBJECT = getattr(
+    settings, 'SSHKEY_EMAIL_ADD_KEY_SUBJECT',
+    "A new public key was added to your account"
 )
-SSHKEY_FROM_EMAIL = getattr(settings, 'SSHKEY_FROM_EMAIL', settings.DEFAULT_FROM_EMAIL)
-SSHKEY_SEND_HTML_EMAIL = getattr(settings, 'SSHKEY_SEND_HTML_EMAIL', False)
+SSHKEY_FROM_EMAIL = getattr(
+    settings, 'SSHKEY_FROM_EMAIL', settings.DEFAULT_FROM_EMAIL)
+SSHKEY_SEND_HTML_EMAIL = getattr(
+    settings, 'SSHKEY_SEND_HTML_EMAIL', False)

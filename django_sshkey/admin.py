@@ -29,24 +29,25 @@
 from django.contrib import admin
 from django_sshkey.models import UserKey
 
+
 class UserKeyAdmin(admin.ModelAdmin):
-  list_display = [
-    '__unicode__',
-    'user',
-    'name',
-    'fingerprint',
-    'created',
-    'last_modified',
-    'last_used',
-  ]
-  search_fields = [
-    'user__username',
-  ]
-  readonly_fields = [
-    'fingerprint',
-    'created',
-    'last_modified',
-    'last_used',
-  ]
+    list_display = [
+        '__unicode__',
+        'user',
+        'name',
+        'fingerprint',
+        'created',
+        'last_modified',
+        'last_used',
+    ]
+    search_fields = [
+        'user__username',
+    ]
+    readonly_fields = [
+        'fingerprint',
+        'created',
+        'last_modified',
+        'last_used',
+    ]
 
 admin.site.register(UserKey, UserKeyAdmin)
